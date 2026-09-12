@@ -1,4 +1,4 @@
-name: Build SRB2 Android
+name: Build Android Game
 
 on: [push, workflow_dispatch]
 
@@ -7,20 +7,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+        with:
+          submodules: recursive
+
       - name: Setup Android SDK & NDK
         uses: android-actions/setup-android@v3
 
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake make build-essential libsdl2-dev
+          sudo apt-get install -y cmake build-essential libsdl2-dev
 
       - name: Configure CMake for Android
         run: |
           mkdir build-android
           cd build-android
-          cmake .. -DCMAKE_SYSTEM_NAME=Android -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a
+          cmake .. \
+            -DCMAKE_SYSTEM_NAME=Android \
+            -DCMAKE_SYSTEM_VERSION=21 \
+            -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
+            -DCMAKE_ANDROID_NDK=$ANDROID_NDK_HOME \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake
 
       - name: Compile APK
         run: |
@@ -30,6 +37,8 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: srb2-android-apk
-          path: build-android/**/*.apk
-          
+          name: meu-apk-personalizado
+          path: |
+            build-android/**/*.apk
+            build-android/*.apk
+            
