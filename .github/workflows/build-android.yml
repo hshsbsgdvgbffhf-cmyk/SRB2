@@ -16,8 +16,12 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build APK with Gradle
+      - name: Locate and Build with Gradle
         run: |
+          # Localiza automaticamente a pasta onde o gradlew está e entra nela
+          GRADLE_DIR=$(find . -name "gradlew" -exec dirname {} \; | head -n 1)
+          echo "Projeto Android encontrado em: $GRADLE_DIR"
+          cd "$GRADLE_DIR"
           chmod +x gradlew
           ./gradlew assembleRelease
 
@@ -25,5 +29,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: srb2-android-release
-          path: app/build/outputs/apk/release/*.apk
+          path: '**/build/outputs/apk/release/*.apk'
           
