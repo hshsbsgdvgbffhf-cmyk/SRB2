@@ -1,0 +1,35 @@
+name: Build SRB2 Android
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Android SDK & NDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake make build-essential libsdl2-dev
+
+      - name: Configure CMake for Android
+        run: |
+          mkdir build-android
+          cd build-android
+          cmake .. -DCMAKE_SYSTEM_NAME=Android -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a
+
+      - name: Compile APK
+        run: |
+          cd build-android
+          make -j$(nproc)
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: srb2-android-apk
+          path: build-android/**/*.apk
+          
